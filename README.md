@@ -514,11 +514,6 @@ data/raw/
 
 如果需要复现实验，请根据 README 中的说明重新下载 base model，并运行数据处理脚本生成训练数据。
 
-TODO：如果最终上传了 LoRA adapter，请删除下面这句话；如果没有上传，则保留。
-
-```text
-当前仓库未上传 adapter_model.safetensors，仅提供训练代码、配置、日志、loss 曲线和输出对比结果。
-```
 
 ---
 
