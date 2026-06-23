@@ -103,24 +103,6 @@
 pip install -r requirements.txt
 ```
 
-`requirements.txt` 内容包括：
-
-```text
-torch
-transformers
-datasets
-accelerate
-peft
-trl
-bitsandbytes
-sentencepiece
-pandas
-matplotlib
-scikit-learn
-tqdm
-pyyaml
-modelscope
-```
 
 ---
 
@@ -281,26 +263,6 @@ lang
 data/dataset_stats.json
 ```
 
-内容如下：
-
-```json
-{
-  "source": "GPT-4-LLM Alpaca-GPT4 English + Chinese",
-  "train_total": 1000,
-  "train_en": 500,
-  "train_zh": 500,
-  "eval_total": 50,
-  "eval_en": 25,
-  "eval_zh": 25,
-  "seed": 42,
-  "fields": [
-    "instruction",
-    "input",
-    "output",
-    "lang"
-  ]
-}
-```
 
 ---
 
