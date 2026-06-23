@@ -1,0 +1,28 @@
+Loading base model...
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:40,  7.16it/s]Loading weights:  38%|███▊      | 111/290 [00:00<00:00, 454.41it/s]Loading weights:  55%|█████▍    | 159/290 [00:00<00:00, 463.78it/s]Loading weights:  71%|███████   | 206/290 [00:00<00:00, 463.71it/s]Loading weights:  87%|████████▋ | 253/290 [00:00<00:00, 465.29it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 479.10it/s]
+Generating base model outputs...
+[Base] 1/10 中文问答
+[Base] 2/10 中文问答
+[Base] 3/10 英译中
+[Base] 4/10 中译英
+[Base] 5/10 总结
+[Base] 6/10 代码解释
+[Base] 7/10 数学推理
+[Base] 8/10 逻辑判断
+[Base] 9/10 英文问答
+[Base] 10/10 日常助手
+Loading fine-tuned LoRA model...
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  18%|█▊        | 52/290 [00:00<00:00, 377.37it/s]Loading weights:  38%|███▊      | 111/290 [00:00<00:00, 475.87it/s]Loading weights:  58%|█████▊    | 167/290 [00:00<00:00, 510.56it/s]Loading weights:  76%|███████▌  | 220/290 [00:00<00:00, 505.48it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 530.21it/s]
+Generating fine-tuned model outputs...
+[Fine-tuned] 1/10 中文问答
+[Fine-tuned] 2/10 中文问答
+[Fine-tuned] 3/10 英译中
+[Fine-tuned] 4/10 中译英
+[Fine-tuned] 5/10 总结
+[Fine-tuned] 6/10 代码解释
+[Fine-tuned] 7/10 数学推理
+[Fine-tuned] 8/10 逻辑判断
+[Fine-tuned] 9/10 英文问答
+[Fine-tuned] 10/10 日常助手
+Saved JSON to results/output_comparison.json
+Saved Markdown to results/output_comparison.md

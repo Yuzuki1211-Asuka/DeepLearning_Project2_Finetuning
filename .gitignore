@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Large model files
+models/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+
+# Hugging Face / cache
+.cache/
+hf-cache/
+transformers_cache/
+datasets_cache/
+
+# Raw full datasets
+data/raw/
+
+# Trainer checkpoints
+results/**/checkpoint-*/
+
+# Temporary files
+*.tmp
+*.log.tmp
+
+# System files
+.DS_Store
+
+# Runtime monitor temporary files
+results/gpu_monitor.pid
+results/gpu_monitor_stdout.txt
+
+# Smoke test files
+data/smoke_train.json
+results/smoke_training_log.txt
+results/training_log.txt
+results/qwen2.5-0.5b-lora/

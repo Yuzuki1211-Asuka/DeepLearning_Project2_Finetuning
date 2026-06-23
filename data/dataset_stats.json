@@ -1,0 +1,16 @@
+{
+  "source": "GPT-4-LLM Alpaca-GPT4 English + Chinese",
+  "train_total": 1000,
+  "train_en": 500,
+  "train_zh": 500,
+  "eval_total": 50,
+  "eval_en": 25,
+  "eval_zh": 25,
+  "seed": 42,
+  "fields": [
+    "instruction",
+    "input",
+    "output",
+    "lang"
+  ]
+}

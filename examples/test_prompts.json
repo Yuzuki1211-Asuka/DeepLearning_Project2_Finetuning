@@ -1,0 +1,52 @@
+[
+  {
+    "category": "中文问答",
+    "instruction": "请解释什么是过拟合。",
+    "input": ""
+  },
+  {
+    "category": "中文问答",
+    "instruction": "请用通俗的语言解释什么是梯度下降。",
+    "input": ""
+  },
+  {
+    "category": "英译中",
+    "instruction": "Please translate the following sentence into Chinese.",
+    "input": "Instruction tuning helps language models better follow user requests."
+  },
+  {
+    "category": "中译英",
+    "instruction": "请把下面这句话翻译成英文。",
+    "input": "深度学习正在改变自然语言处理。"
+  },
+  {
+    "category": "总结",
+    "instruction": "请用三句话总结下面这段话。",
+    "input": "大语言模型通常先通过大规模文本进行预训练，获得基础语言建模能力。随后，研究者会使用指令数据进行监督微调，使模型更好地理解和响应用户任务。最后，还可以通过偏好学习或强化学习进一步提升模型的有用性和安全性。"
+  },
+  {
+    "category": "代码解释",
+    "instruction": "请解释下面 Python 代码的作用。",
+    "input": "for i in range(5):\n    print(i)"
+  },
+  {
+    "category": "数学推理",
+    "instruction": "如果一个商品原价 200 元，现在打八折，请问现价是多少？请给出计算过程。",
+    "input": ""
+  },
+  {
+    "category": "逻辑判断",
+    "instruction": "请判断下面的推理是否正确，并说明原因：所有猫都会飞，小黑是猫，所以小黑会飞。",
+    "input": ""
+  },
+  {
+    "category": "英文问答",
+    "instruction": "Explain what supervised fine-tuning is in simple terms.",
+    "input": ""
+  },
+  {
+    "category": "日常助手",
+    "instruction": "请写一封礼貌的邮件，请老师允许我延期提交作业。",
+    "input": ""
+  }
+]
