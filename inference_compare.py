@@ -173,7 +173,7 @@ def main():
             f.write("```text\n" + r["fine_tuned_model_output"] + "\n```\n\n")
 
             f.write("### Analysis\n\n")
-            f.write("TODO: 在这里分析微调前后输出的差异，例如指令遵循、语言质量、是否跑题、是否有事实错误或推理错误。\n\n")
+            f.write("(请在此处填写分析)\n\n")
             f.write("---\n\n")
 
     print(f"Saved JSON to {OUT_JSON}")
