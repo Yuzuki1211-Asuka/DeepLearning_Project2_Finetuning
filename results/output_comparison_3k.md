@@ -1,7 +1,7 @@
 # Base Model vs Fine-tuned Model Output Comparison
 
 - Base model: Qwen2.5-0.5B
-- Fine-tuned model: Qwen2.5-0.5B + LoRA adapter trained on mixed 1K Alpaca-style data
+- Fine-tuned model: Qwen2.5-0.5B + LoRA adapter trained on mixed 3K Alpaca-style data
 
 ## Example 1: 中文问答
 
