@@ -1,0 +1,5 @@
+gpu_name: NVIDIA GeForce RTX 5090
+peak_memory_used_mb: 5650
+memory_total_mb: 32607
+peak_gpu_utilization_percent: 44
+csv_file: results/gpu_usage_mixed_3k.csv

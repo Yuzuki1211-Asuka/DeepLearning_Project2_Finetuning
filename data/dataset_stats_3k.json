@@ -1,0 +1,17 @@
+{
+  "source": "GPT-4-LLM Alpaca-GPT4 English + Chinese",
+  "train_total": 3000,
+  "train_en": 1500,
+  "train_zh": 1500,
+  "eval_total": 100,
+  "eval_en": 50,
+  "eval_zh": 50,
+  "seed": 43,
+  "filter_rule": "remove empty instruction/output and samples with total_len > 1800",
+  "fields": [
+    "instruction",
+    "input",
+    "output",
+    "lang"
+  ]
+}
