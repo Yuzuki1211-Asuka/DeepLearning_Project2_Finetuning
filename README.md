@@ -141,69 +141,58 @@ model_dir = snapshot_download(
 
 ---
 
-## 6. Dataset
+## 6. 数据集
 
-### 6.1 使用的数据集
-
-本实验使用中英文混合的 Alpaca-style instruction 数据，数据来源为：
-
-```text
-GPT-4-LLM Alpaca-GPT4 English + Chinese
-```
-
-我们分别从英文 Alpaca-GPT4 数据和中文 Alpaca-GPT4 数据中抽取样本，构造中英文混合训练集和验证集。
-
-数据处理脚本为：
-
-```bash
-python scripts/prepare_mixed_alpaca.py
-```
-
-处理后生成：
-
-```text
-data/train.json
-data/eval.json
-data/dataset_stats.json
-```
-
-### 6.2 数据字段含义
+本项目使用 GPT-4-LLM Alpaca-GPT4 English 和 Chinese 数据集中的 Alpaca-style instruction-following 数据。为了支持中英文混合指令微调，我们分别从英文数据和中文数据中采样，并构造了中英文比例均衡的混合训练集。
 
 每条样本包含以下字段：
 
 | 字段            | 含义                           |
 | ------------- | ---------------------------- |
-| `instruction` | 用户希望模型完成的任务说明                |
-| `input`       | 完成任务所需的额外输入，可以为空             |
-| `output`      | 期望模型生成的标准回答                  |
-| `lang`        | 样本语言，`en` 表示英文样本，`zh` 表示中文样本 |
+| `instruction` | 用户指令或任务描述                    |
+| `input`       | 可选输入内容，部分任务为空                |
+| `output`      | 期望模型生成的回答                    |
+| `lang`        | 语言标记，`en` 表示英文样本，`zh` 表示中文样本 |
 
-样例：
+本项目共进行了两组不同数据规模的实验：
 
-```json
-{
-  "instruction": "请解释什么是过拟合。",
-  "input": "",
-  "output": "过拟合是指模型在训练数据上表现很好，但在未见过的数据上表现较差的现象。",
-  "lang": "zh"
-}
+| 实验设置     | 训练样本数 | 英文训练样本数 | 中文训练样本数 | 验证样本数 |
+| -------- | ----: | ------: | ------: | ----: |
+| Mixed 1K |  1000 |     500 |     500 |    50 |
+| Mixed 3K |  3000 |    1500 |    1500 |   100 |
+
+其中，Mixed 1K 的验证集包含 25 条英文样本和 25 条中文样本；Mixed 3K 的验证集包含 50 条英文样本和 50 条中文样本。
+
+数据预处理过程中，我们采用了以下清洗规则：
+
+* 删除 `instruction` 或 `output` 为空的样本；
+* 删除总长度过长的样本，即 `len(instruction) + len(input) + len(output) > 1800` 的样本；
+* 保持英文和中文样本数量均衡；
+* 将所有样本转换为 Alpaca-style prompt-response 格式。
+
+数据预处理脚本如下：
+
+```bash
+python scripts/prepare_mixed_alpaca.py
+python scripts/prepare_mixed_alpaca_3k.py
 ```
 
-### 6.3 Prompt 构造方式
-
-本实验采用 Alpaca-style prompt template。
-
-当 `input` 为空时，prompt 构造为：
+处理后的数据文件如下：
 
 ```text
-### Instruction:
-{instruction}
-
-### Response:
-{output}
+data/train.json
+data/eval.json
+data/train_3k.json
+data/eval_3k.json
+data/dataset_stats.json
+data/dataset_stats_3k.json
 ```
 
-当 `input` 不为空时，prompt 构造为：
+由于原始数据文件较大，`data/raw/` 目录未上传到 GitHub 仓库。
+
+## 7. Prompt Template
+
+本项目采用 Alpaca-style prompt template 构造训练样本。对于包含 `input` 字段的样本，prompt 格式如下：
 
 ```text
 ### Instruction:
@@ -216,247 +205,113 @@ data/dataset_stats.json
 {output}
 ```
 
-在推理阶段，只提供 `instruction` 和可选的 `input`，让模型从 `### Response:` 后开始生成回答。
-
-### 6.4 训练集和测试集划分
-
-本实验共构造：
-
-| 数据集   | 总样本数 | 英文样本数 | 中文样本数 |
-| ----- | ---: | ----: | ----: |
-| Train | 1000 |   500 |   500 |
-| Eval  |   50 |    25 |    25 |
-
-具体划分方式如下：
-
-1. 分别读取英文 Alpaca-GPT4 数据和中文 Alpaca-GPT4 数据；
-2. 对两种语言的数据分别打乱；
-3. 从英文数据中抽取 500 条作为训练样本，25 条作为验证样本；
-4. 从中文数据中抽取 500 条作为训练样本，25 条作为验证样本；
-5. 合并英文和中文样本后再次打乱，得到最终的 `data/train.json` 和 `data/eval.json`。
-
-随机种子设置为42，以保证数据划分可复现。
-
-### 6.5 数据清洗和筛选
-
-本实验进行了简单的数据清洗和筛选：
-
-1. 去除 `instruction` 为空的样本；
-2. 去除 `output` 为空的样本；
-3. 去除过长样本，具体规则为：
+对于不包含 `input` 字段的样本，prompt 格式如下：
 
 ```text
-len(instruction) + len(input) + len(output) > 1800
+### Instruction:
+{instruction}
+
+### Response:
+{output}
 ```
 
-超过该长度的样本会被过滤掉，以避免第一次正式训练过慢或显存压力过大。
+训练时，模型学习在 `### Response:` 之后生成符合指令要求的回答。该格式能够帮助 base model 学习 instruction-response 形式的交互方式，使其更接近指令遵循模型。
 
-最终保留字段：
+## 8. 训练方法
+
+本项目使用 Qwen2.5-0.5B 作为 base model，并采用 LoRA 进行参数高效微调。LoRA 方法保持原始模型权重冻结，只训练额外插入的低秩适配器参数，从而降低训练成本和显存需求。
+
+本实验的 LoRA target modules 包括：
 
 ```text
-instruction
-input
-output
-lang
+q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj
 ```
 
-数据统计结果保存在：
+主要训练超参数如下：
+
+| 超参数                         |           数值 |
+| --------------------------- | -----------: |
+| Base model                  | Qwen2.5-0.5B |
+| 微调方法                        |         LoRA |
+| Max sequence length         |          512 |
+| Epochs                      |            2 |
+| Per-device train batch size |            2 |
+| Gradient accumulation steps |            8 |
+| Effective batch size        |           16 |
+| Learning rate               |         2e-4 |
+| LoRA r                      |            8 |
+| LoRA alpha                  |           16 |
+| LoRA dropout                |         0.05 |
+
+LoRA 可训练参数量如下：
 
 ```text
-data/dataset_stats.json
+Trainable params: 4,399,104
+All params: 498,431,872
+Trainable percentage: 0.8826%
 ```
 
+为了保证 Mixed 1K 和 Mixed 3K 实验具有可比性，两组实验使用相同的 base model、LoRA 配置、batch size、learning rate、max sequence length 和 epoch 数。两组实验的主要区别仅在于训练样本规模不同。
 
----
+## 9. 实验结果
 
-## 7. Fine-tuning Method
+本项目共完成了 Mixed 1K 和 Mixed 3K 两组 LoRA instruction fine-tuning 实验。主要训练结果如下：
 
-本实验使用 LoRA 进行参数高效微调。
+| 实验设置                 |  Mixed 1K |    Mixed 3K |
+| -------------------- | --------: | ----------: |
+| 训练样本数                |      1000 |        3000 |
+| 英文 / 中文训练样本数         | 500 / 500 | 1500 / 1500 |
+| 验证样本数                |        50 |         100 |
+| Epochs               |         2 |           2 |
+| Effective batch size |        16 |          16 |
+| Learning rate        |      2e-4 |        2e-4 |
+| Final train_loss     |     1.576 |       1.602 |
+| Trainer runtime      |   118.7 s |     355.8 s |
+| Wall time            |     129 s |       367 s |
+| Peak GPU memory      |   5650 MB |     5650 MB |
+| Peak GPU utilization |       43% |         44% |
 
-LoRA 的基本思想是在保持原始模型参数冻结的情况下，为部分线性层加入低秩可训练矩阵。训练过程中只更新这些 LoRA 参数，而不是更新完整模型参数。
+实验结果显示，当训练样本数从 1000 增加到 3000 时，总训练时间明显增加。Mixed 3K 的 wall time 为 367 秒，约为 Mixed 1K 的 2.84 倍，基本符合训练数据量增加带来的时间增长趋势。
 
-本实验对以下模块加入 LoRA：
+两组实验的峰值显存均为 5650 MB。这说明在模型规模、batch size、max sequence length 和 LoRA 配置保持不变的情况下，训练样本总数主要影响训练步数和总耗时，而不会明显增加单步训练的峰值显存占用。
 
-```text
-q_proj
-k_proj
-v_proj
-o_proj
-gate_proj
-up_proj
-down_proj
-```
+Mixed 3K 的 final train_loss 为 1.602，略高于 Mixed 1K 的 1.576。该结果不能简单理解为 3K 模型效果更差，因为 3K 数据包含更多样化的中英文 instruction 样本，任务分布更复杂。因此，模型效果需要结合推理输出结果进行综合分析，而不能只依赖训练 loss 数值。
 
-LoRA 参数设置如下：
-
-| 参数           |   数值 |
-| ------------ | ---: |
-| LoRA r       |    8 |
-| LoRA alpha   |   16 |
-| LoRA dropout | 0.05 |
-
-训练过程中参数统计如下：
-
-| 项目                   |          数值 |
-| -------------------- | ----------: |
-| Total parameters     | 498,431,872 |
-| Trainable parameters |   4,399,104 |
-| Trainable ratio      |     0.8826% |
-
-可以看到，本实验只训练不到 1% 的模型参数，体现了 LoRA 参数高效微调的特点。
-
----
-
-## 8. Training Configuration
-
-训练配置文件为：
-
-```text
-configs/train_config.yaml
-```
-
-主要配置如下：
-
-```yaml
-model_name: models/Qwen2.5-0.5B
-train_file: data/train.json
-output_dir: results/qwen2.5-0.5b-lora-mixed-1k
-
-max_seq_length: 512
-num_train_epochs: 2
-per_device_train_batch_size: 2
-gradient_accumulation_steps: 8
-learning_rate: 0.0002
-logging_steps: 10
-save_steps: 100
-
-lora_r: 8
-lora_alpha: 16
-lora_dropout: 0.05
-```
-
-训练命令：
-
-```bash
-python train_lora.py 2>&1 | tee results/training_log_mixed_1k.txt
-```
-
-显存监控命令：
-
-```bash
-python scripts/monitor_gpu.py \
-  --interval 1 \
-  --csv results/gpu_usage_mixed_1k.csv \
-  --summary results/gpu_summary_mixed_1k.txt
-```
-
----
-
-## 9. Training Results
-
-正式训练结果如下：
-
-| 指标                    |                      数值 |
-| --------------------- | ----------------------: |
-| Final train_loss      |                   1.576 |
-| Trainer train_runtime |           118.7 seconds |
-| Wall time             |             129 seconds |
-| GPU                   | NVIDIA GeForce RTX 5090 |
-| Peak GPU memory used  |                 5650 MB |
-| Total GPU memory      |                32607 MB |
-| Peak GPU utilization  |                     43% |
-
-训练日志：
-
-```text
-results/training_log_mixed_1k.txt
-```
-
-训练时间记录：
-
-```text
-results/train_time_mixed_1k.txt
-```
-
-显存记录：
-
-```text
-results/gpu_summary_mixed_1k.txt
-results/gpu_usage_mixed_1k.csv
-```
-
-loss 曲线：
+重要结果文件如下：
 
 ```text
 results/loss_curve_mixed_1k.png
-```
-
-训练摘要：
-
-```text
+results/loss_curve_mixed_3k.png
 results/run_summary_mixed_1k.md
+results/run_summary_mixed_3k.md
+results/training_log_mixed_1k.txt
+results/training_log_mixed_3k.txt
+results/gpu_summary_mixed_1k.txt
+results/gpu_summary_mixed_3k.txt
 ```
 
----
+## 10. 推理输出对比
 
-## 10. Inference Comparison
+为了评估 instruction fine-tuning 的实际效果，我们设计了 10 条测试指令，覆盖中文问答、英译中、中译英、总结、代码解释、数学推理、逻辑判断、英文问答和日常助手等任务类型。我们分别比较了 base model、Mixed 1K fine-tuned model 和 Mixed 3K fine-tuned model 的输出表现。
 
-为了比较微调前后模型能力变化，我们设计了 10 条测试指令，覆盖以下任务类型：
-
-1. 中文问答；
-2. 英译中；
-3. 中译英；
-4. 总结；
-5. 代码解释；
-6. 数学推理；
-7. 逻辑判断；
-8. 英文问答；
-9. 日常助手类任务。
-
-测试指令文件：
-
-```text
-examples/test_prompts.json
-```
-
-推理对比脚本：
-
-```text
-inference_compare.py
-```
-
-运行命令：
-
-```bash
-python inference_compare.py 2>&1 | tee results/inference_compare_log.txt
-```
-
-输出结果：
+完整输出对比结果保存在以下文件中：
 
 ```text
 results/output_comparison.md
-results/output_comparison.json
+results/output_comparison_3k.md
 ```
 
-对比内容包括：
+主要观察结果如下：
 
-```text
-Instruction
-Input
-Base model output
-Fine-tuned model output
-Analysis
-```
+* Base model 经常将 prompt 当作普通文本续写，而不是执行用户指令。例如在翻译任务中，base model 直接复制输入文本，没有进行翻译。
+* Mixed 1K fine-tuned model 在指令遵循能力上有明显提升，尤其是在翻译任务和简单数学任务中，能够更好地按照指令生成回答。
+* Mixed 3K fine-tuned model 在日常助手类任务中表现更好，例如邮件写作任务中，回答更加自然、礼貌，结构也更加完整。
+* 但是 Mixed 3K 并不是在所有任务上都优于 Mixed 1K。它在部分翻译任务中出现了重复生成、过长解释和截断问题。
+* 在数学推理任务中，Mixed 3K 模型将“打八折”错误计算为 `200 * (1 - 0.80) = 40`，而正确答案应为 `200 * 0.8 = 160`。
+* 在逻辑判断任务中，base model 和 fine-tuned model 都仍然存在明显不足，说明小规模 instruction fine-tuning 无法显著提升复杂逻辑推理能力。
 
-目前 `results/output_comparison.md` 中包含每个测试样例的输出对比和分析。分析重点包括：
+总体来看，LoRA instruction fine-tuning 能够明显改善模型的指令遵循能力、回答格式和助手风格。但是，这种提升主要体现在“如何回答”上，而不是全面提升模型的数学推理、逻辑判断或代码理解能力。对于 Qwen2.5-0.5B 这样的小模型，模型能力仍然受到 base model 本身能力、训练数据质量和生成策略的限制。
 
-1. fine-tuned model 是否更符合指令；
-2. 回答是否更完整、更自然；
-3. 是否存在跑题、重复、乱码、答非所问；
-4. 哪些任务提升明显；
-5. 哪些任务仍然失败或提升有限。
-
----
 
 
 ## 11. How to Reproduce
