@@ -38,7 +38,6 @@
 ## 3. Repository Structure
 
 ```text
-.
 ├── README.md
 ├── requirements.txt
 ├── train_lora.py
@@ -48,13 +47,16 @@
 ├── data/
 │   ├── train.json
 │   ├── eval.json
-│   └── dataset_stats.json
+│   ├── dataset_stats.json
+│   ├── train_3k.json
+│   ├── eval_3k.json
+│   └── dataset_stats_3k.json
 ├── examples/
 │   └── test_prompts.json
 ├── scripts/
 │   ├── prepare_mixed_alpaca.py
-│   ├── monitor_gpu.py
-│   └── plot_loss.py
+│   ├── prepare_mixed_alpaca_3k.py
+│   └── plot_loss_any.py
 ├── results/
 │   ├── training_log_mixed_1k.txt
 │   ├── train_time_mixed_1k.txt
@@ -63,7 +65,15 @@
 │   ├── loss_curve_mixed_1k.png
 │   ├── output_comparison.md
 │   ├── output_comparison.json
-│   └── run_summary_mixed_1k.md
+│   ├── run_summary_mixed_1k.md
+│   ├── training_log_mixed_3k.txt
+│   ├── train_time_mixed_3k.txt
+│   ├── gpu_summary_mixed_3k.txt
+│   ├── gpu_usage_mixed_3k.csv
+│   ├── loss_curve_mixed_3k.png
+│   ├── output_comparison_3k.md
+│   ├── output_comparison_3k.json
+│   └── run_summary_mixed_3k.md
 └── report/
     └── project_report.pdf
 ```
